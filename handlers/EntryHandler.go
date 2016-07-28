@@ -9,18 +9,20 @@ import (
 
 // Handles entries via "/blog/{name}"
 // Loads the corresponding .md file using ReadContent, parses it via
-// blackfriday then returns it as html.
+// blackfriday then returns it as html through PageFactory.
 func EntryHandler (c *gin.Context) {
     md, err := lib.ReadContent(c.Param("name"))
     if err != nil {
         c.String(404, "Entry not found")
     } else {
         html := blackfriday.MarkdownCommon(md)
+        pf := lib.PageFactory{}
+        pf.Init(html, "SomeTitle", "templates/base.tmpl")
         c.Render(
             200,
             render.Data {
             ContentType: "text/html",
-            Data:        html,
+            Data:        []byte(pf.Render()),
         })
     }
 }
